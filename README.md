@@ -4,7 +4,7 @@ node.js版本16+
 
 本地需安装yarn
 
-## 环境变现
+## 环境变量
 
 server/config/vars.js 配置相应的开发平台需要的变量
 
