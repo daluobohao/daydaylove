@@ -211,7 +211,8 @@ onMounted(() => {
                             <div class="vip-pay-qrcode w-full flex flex-col justify-center">
                                 <div class="vip-pay-qrcode-item relative">
                                     <div style="width: 120px" class="m-auto relative">
-                                        <qrcode-vue :value="codeDataStr" :size="120" level="H" />
+                                        <!-- <qrcode-vue :value="codeDataStr" :size="120" level="H" /> -->
+                                         <img src="/shoukuan.jpeg" width="120" height="120" alt="">
                                         <div class="absolute left-0 top-0 w-full h-full bg-black bg-opacity-60 flex items-center justify-center cursor-pointer" v-if="intervalNum < 1" @click="beginInterval">
                                             <svg t="1629213204626" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2590" width="32" height="32"><path d="M981.448462 133.180788a35.367512 35.367512 0 0 0-35.367512 35.367512v85.103076a505.092283 505.092283 0 0 0-939.449541 221.046951 35.367512 35.367512 0 0 0 32.604425 38.130599 35.367512 35.367512 0 0 0 35.367512-32.604425 434.357258 434.357258 0 0 1 819.53157-165.785213h-93.944954a35.367512 35.367512 0 1 0 0 71.287641h181.2585a35.367512 35.367512 0 0 0 35.367512-35.367512V168.5483a35.367512 35.367512 0 0 0-35.367512-35.367512z m0 379.095521a35.367512 35.367512 0 0 0-38.130599 32.604425 434.357258 434.357258 0 0 1-819.531571 165.785213h100.023746a35.367512 35.367512 0 1 0 0-71.287642H42.551538a35.367512 35.367512 0 0 0-35.367512 35.367513v181.258499a35.367512 35.367512 0 1 0 71.287642 0v-85.655693a505.092283 505.092283 0 0 0 939.449541-221.046951 35.367512 35.367512 0 0 0-34.814895-37.025364z" fill="#ffffff" p-id="2591"></path></svg>
                                         </div>
@@ -223,7 +224,7 @@ onMounted(() => {
                                 </div>
                             </div>
                             <div class="w-full text-center mt-2 text-gray-400">
-                                付款如有问题，请联系客服微信 liujinkai100
+                                付款如有问题，请联系客服微信 tiankongfei12345
                             </div>
                         </div>
                     </div>
@@ -239,7 +240,7 @@ onMounted(() => {
                             />
                         </div>
                         <div class="vip-service-con-title text-center text-xl mt-4 mb-6">🎉 恭喜成为VIP会员！</div>
-                        <div class="vip-service-con text-center">使用中如果有问题，可以加微信: liujinkai100 处理，请备注【DayDayMoment会员】，再次感谢信任和支持！</div>
+                        <div class="vip-service-con text-center">使用中如果有问题，可以加微信: tiankongfei12345 处理，请备注【DayDayMoment会员】，再次感谢信任和支持！</div>
                     </div>
                 </div>
             </div>

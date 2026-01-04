@@ -9,9 +9,9 @@ const YUNGOU = {
 
 // Leancloud开发配置
 const AV_CONFIG = {
-    appId: "xxx",
-    appKey: "xxx",
-    masterKey: "xxx",
-    serverURL: "xxx"
+    appId: "QMZTwxUhNvjlYQUdgTGX3kYn-gzGzoHsz",
+    appKey: "HbxUgVwm5CElQkW2G1UrAg3z",
+    masterKey: "0ujVVWchgrRYTnQtu7JTNtMR",
+    serverURL: "https://qmztwxuh.lc-cn-n1-shared.com"
 }
 export { AV_CONFIG, YUNGOU }

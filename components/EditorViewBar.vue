@@ -234,34 +234,34 @@ const fillPatternImageVisible = ref(false)
 const activeFillPatternImage = ref("")
 const fillPatternImageOptions = [{
     type: "zhigan",
-    image: 'http://localhost:3334/template/text/fill/text_bg_23020701.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_23020701.png'
   }, {
     type: "zhigan",
-    image: 'http://localhost:3334/template/text/fill/text_bg_23020702.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_23020702.png'
   }, {
     type: "zhigan",
-    image: 'http://localhost:3334/template/text/fill/text_bg_23020703.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_23020703.png'
   }, {
     type: "zhigan",
-    image: 'http://localhost:3334/template/text/fill/text_bg_23020704.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_23020704.png'
   }, {
     type: "zhigan",
-    image: 'http://localhost:3334/template/text/fill/text_bg_23020705.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_23020705.png'
   }, {
     type: "qingchun",
-    image: 'http://localhost:3334/template/text/fill/text_bg_2023020901.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_2023020901.png'
   }, {
     type: "qingchun",
-    image: 'http://localhost:3334/template/text/fill/text_bg_2023020902.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_2023020902.png'
   }, {
     type: "qingchun",
-    image: 'http://localhost:3334/template/text/fill/text_bg_2023020903.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_2023020903.png'
   }, {
     type: "qingchun",
-    image: 'http://localhost:3334/template/text/fill/text_bg_2023020904.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_2023020904.png'
   }, {
     type: "qingchun",
-    image: 'http://localhost:3334/template/text/fill/text_bg_2023020905.png'
+    image: 'http://localhost:3000/template/text/fill/text_bg_2023020905.png'
   }]
   const activeFillPatternImageOptions = ref([])
 
@@ -321,7 +321,7 @@ nextTick(()=>{
 
 // image upload
 const handleUploadSuccess = async (res) => {
-    const url = 'http://s.daydaymoment.com/' + res.key + "?imageslim";
+    const url = 'http://wang-hao-hao.cn/' + res.key + "?imageslim";
     eventBus.emit('edit', {type: "image", key: "replace", value: url})
 }
 const onUploadChange = async () => {

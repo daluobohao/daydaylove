@@ -1,8 +1,8 @@
 import qiniu from 'qiniu';
 
 async function getSign(req) {
-    var accessKey = 'vrpYf0iM2ZCTvn-Yi4b-84J38N_KiHRXiXrOvO12';
-    var secretKey = '3k26yNVHOfdlYQQnRRACTvaPV_LsH4ESq3Gpzltm';
+    var accessKey = 'omRKBrSZesAegfkmaFD-RK7QLSpQVNYjj4sAnjzb';
+    var secretKey = 'ABKgEBrcFGcOya7yjcJEkrZI0Ph14cZ0FOF9-ROW';
     var mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
     var options = {
         scope: 'daydaymoment',
