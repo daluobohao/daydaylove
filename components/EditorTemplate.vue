@@ -218,7 +218,7 @@ const textQueryState = reactive({meta: {limit: 10, next: 0, hasNext: true}, acti
 const textList = ref([
     {
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/text/text_preview_2023021101.png?imageView2/2/w/200",
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/text/preview/text_preview_2023021101.png?imageView2/2/w/200",
             "config": [
             {
                 "x": 100,
@@ -236,7 +236,7 @@ const textList = ref([
         },
         {
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/text/text_preview_2023021102.png?imageView2/2/w/200",
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/text/preview/text_preview_2023021102.png?imageView2/2/w/200",
             "config": [
             {
                 "x": 100,
@@ -255,7 +255,7 @@ const textList = ref([
         {
         "title": "描边镂空粗体",
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/text/text_preview_2023020701.png?imageView2/2/w/200",
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/text/preview/text_preview_2023020701.png?imageView2/2/w/200",
             "config": [
             {
                 "y": 100,
@@ -275,7 +275,7 @@ const textList = ref([
         {
         "title": "质感背景填充粗体",
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/text/text_preview_2023020702.png?imageView2/2/w/200",
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/text/preview/text_preview_2023020702.png?imageView2/2/w/200",
             "config": [
             {
                 "x": 100,
@@ -284,7 +284,7 @@ const textList = ref([
                 "fontSize": 30,
                 "fontFamily": "font23001",
                 "draggable": true,
-                "fillPatternImage": "http://t8aaikgv6.sabkt.gdipper.com/text/fill/text_bg_23020701.png"
+                "fillPatternImage": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/text/fill/text_bg_23020701.png"
             }
             ]
         },
@@ -293,7 +293,7 @@ const textList = ref([
         {
         "title": "渐变颜色填充",
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/text/text_preview_2023020703.png?imageView2/2/w/200",
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/text/preview/text_preview_2023020703.png?imageView2/2/w/200",
             "config": [
             {
                 "y": 100,
@@ -324,7 +324,7 @@ const textList = ref([
         {
         "title": "叠加力量粗体",
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/text/text_preview_2023020704.png?imageView2/2/w/200",
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/text/preview/text_preview_2023020704.png?imageView2/2/w/200",
             "config": [
             {
                 "x": 102,
@@ -347,7 +347,7 @@ const textList = ref([
         {
         "title": "青春粗体阳光",
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/text/text_preview_2023020705.png?imageView2/2/w/200",
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/text/preview/text_preview_2023020705.png?imageView2/2/w/200",
             "config": [
             {
                 "x": 100,
@@ -356,7 +356,7 @@ const textList = ref([
                 "fontFamily": "font23001",
                 "fontSize": 30,
                 "draggable": true,
-                "fillPatternImage": "http://t8aaikgv6.sabkt.gdipper.com/text/fill/text_bg_2023020901.png"
+                "fillPatternImage": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/text/preview/fill/text_bg_2023020901.png"
             }
             ]
         },
@@ -373,29 +373,29 @@ const materialList = ref([
     {
         "title": "daydaymoment标志Logo",
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/material/daydaymoment.png??imageView2/2/w/200",
-            "url": "http://t8aaikgv6.sabkt.gdipper.com/material/daydaymoment.png?imageslim"
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/material/daydaymoment.png??imageView2/2/w/200",
+            "url": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/material/daydaymoment.png?imageslim"
         }
     },
     {
         "title": "太空火箭上升宇航员",
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/material/2023020615.png?imageView2/2/w/200",
-            "url": "http://t8aaikgv6.sabkt.gdipper.com/material/2023020615.png?imageslim"
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/material/2023020615.png?imageView2/2/w/200",
+            "url": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/material/2023020615.png?imageslim"
         }
     },
     {
         "title": "撒花开心小女孩可爱",
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/material/2023020619.png?imageView2/2/w/200",
-            "url": "http://t8aaikgv6.sabkt.gdipper.com/material/2023020619.png?imageslim"
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/material/2023020619.png?imageView2/2/w/200",
+            "url": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/material/2023020619.png?imageslim"
         }
     },
     {
         "title": "日历便签提示工作",
         "source": {
-            "preview": "http://t8aaikgv6.sabkt.gdipper.com/material/2023020620.png?imageView2/2/w/200",
-            "url": "http://t8aaikgv6.sabkt.gdipper.com/material/2023020620.png?imageslim"
+            "preview": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/material/2023020620.png?imageView2/2/w/200",
+            "url": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/material/2023020620.png?imageslim"
         }
     }
 ])
