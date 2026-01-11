@@ -137,7 +137,7 @@ const templateQueryLoading = ref(false)
 const templateQueryState = reactive({meta: {limit: 10, next: 0, hasNext: true}, active: "input"})
 // const templateList = ref([
 //         {
-//             source: {preview: "http://localhost:3000/template/preset/template-230001.png", json: {
+//             source: {preview: "https://daluobo.oss-cn-beijing.aliyuncs.com/template/preset/template-230001.png", json: {
 //                 "attrs": {
 //                 "width": 279.2134831460674,
 //                 "height": 497,
@@ -156,7 +156,7 @@ const templateQueryState = reactive({meta: {limit: 10, next: 0, hasNext: true}, 
 //                         "height": 498,
 //                         "name": "image",
 //                         "draggable": true,
-//                         "imageSource": "http://localhost:3000/template/20230129.jpg"
+//                         "imageSource": "https://daluobo.oss-cn-beijing.aliyuncs.com/template/preset/20230129.jpg"
 //                         },
 //                         "className": "Image"
 //                     },
