@@ -192,7 +192,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <div class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 12 }" @click="priceSelect(12)">
-                                    <div>12个月VIP会员</div>
+                                    <div>6个月VIP会员</div>
                                     <div>60元 <span class="vip-pay-time-item-old">120元</span></div>
                                     <div class="vip-pay-time-best">最多人选择</div>
                                     <div class="absolute right-0 bottom-0" v-if="vipPayQrcode === 12">
@@ -200,7 +200,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <div class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 666 }" @click="priceSelect(666)">
-                                    <div>终身VIP会员</div>
+                                    <div>12个月VIP会员</div>
                                     <div>298元 <span class="vip-pay-time-item-old">999元</span></div>
                                     <div class="vip-pay-time-best">限量</div>
                                     <div class="absolute right-0 bottom-0" v-if="vipPayQrcode === 666">
