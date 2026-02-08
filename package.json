@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "NODE_OPTIONS=--no-deprecation nuxt dev --port 3334",
+    "dev": "NODE_OPTIONS=--no-deprecation nuxt dev --port 3334 --host 0.0.0.0",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"

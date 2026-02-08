@@ -59,7 +59,7 @@
       initLocalUser()
   }
 
-  const filterName = (email) => {
+  const filterName = (email: string) => {
       return email.length > 8 ? email.substring(0, 8) + "..." : email
 
   }

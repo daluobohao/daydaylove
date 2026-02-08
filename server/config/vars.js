@@ -1,8 +1,8 @@
 // yungouos开发配置
 const YUNGOU = {
-    mch_id: "xx", // 商户ID
-    YUNGOUOS_KEY: "xx", // yungouos开发key
-    notify_url: "xx", // 回调通知地址
+    mch_id: "1105317738", // 商户ID
+    YUNGOUOS_KEY: "627B69BDB3E54120926F49604C01832B", // yungouos开发key
+    notify_url: "https://wang-hao-hao.cn/api/pay/yungou", // 回调通知地址
     api_url: "https://api.pay.yungouos.com/api/pay/wxpay/nativePay",
     default_name: "DayDayMoment会员"
 }
