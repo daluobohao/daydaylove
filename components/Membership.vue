@@ -94,8 +94,8 @@ const generateCodeStr = async () => {
         codeDataStr.value = qrcodeObjTmp[type].code
         return
     }
-    let payProduct = {"1": "DayDayMoment 1个月VIP会员", "12": "DayDayMoment 一年VIP会员"}
-    let fees = {"1": 1, "12": 9.8}
+    let payProduct = {"1": "普通会员", "12": "VIP会员", '666': "SVIP会员"}
+    let fees = {"1": 0.1, "12": 0.2, '666': 0.3}
     let r = uuid()
     let d = type
     let userId = user.value && user.value.userId
@@ -161,38 +161,22 @@ onMounted(() => {
                             <ul class="vip-fuc-ul">
                                 <li class="vip-fuc-li">
                                     <s></s>
-                                    <span>去除水印</span>
-                                </li>
-                                <li class="vip-fuc-li">
-                                    <s></s>
                                     <span>限时优惠</span>
                                 </li>
-                                <li class="vip-fuc-li">
-                                    <s></s>
-                                    <span>高清下载</span>
-                                </li>
-                                <li class="vip-fuc-li">
-                                    <s></s>
-                                    <span>VIP专属模板</span>
-                                </li>
 
-                                <li class="vip-fuc-li">
-                                    <s></s>
-                                    <span>更多高阶功能</span>
-                                </li>
                             </ul>
                         </div>
                         <div class="w-2/3 px-8">
                             <div class="vip-pay-time flex justify-between space-x-6 w-full mt-4">
                                 <div class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 1 }" @click="priceSelect(1)">
-                                    <div>1个月VIP会员</div>
+                                    <div>普通会员</div>
                                     <div>15.8元 <span class="vip-pay-time-item-old">19.8元</span></div>
                                     <div class="absolute right-0 bottom-0" v-if="vipPayQrcode === 1">
                                         <svg t="1676781023946" class="icon" viewBox="0 0 1321 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6720" width="16" height="16"><path d="M15.240657 514.844738L401.455434 1002.752502c20.335644 20.335644 60.977394 30.496081 81.313038 10.160437l10.160438-10.160437L1306.000217 87.988209c20.335644-20.335644 20.335644-50.816957 0-71.1526-10.160438-20.320875-40.641751-20.320875-60.977395-10.160438l-802.910869 680.95608L116.87457 413.210825a92.344792 92.344792 0 0 0-101.633913 0c-20.320875 40.656519-20.320875 71.182136 0 101.633913z" fill="#EB455F" p-id="6721"></path></svg>
                                     </div>
                                 </div>
                                 <div class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 12 }" @click="priceSelect(12)">
-                                    <div>6个月VIP会员</div>
+                                    <div>VIP会员</div>
                                     <div>60元 <span class="vip-pay-time-item-old">120元</span></div>
                                     <div class="vip-pay-time-best">最多人选择</div>
                                     <div class="absolute right-0 bottom-0" v-if="vipPayQrcode === 12">
@@ -200,7 +184,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <div class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 666 }" @click="priceSelect(666)">
-                                    <div>12个月VIP会员</div>
+                                    <div>SVIP会员</div>
                                     <div>298元 <span class="vip-pay-time-item-old">999元</span></div>
                                     <div class="vip-pay-time-best">限量</div>
                                     <div class="absolute right-0 bottom-0" v-if="vipPayQrcode === 666">
@@ -240,7 +224,7 @@ onMounted(() => {
                             />
                         </div>
                         <div class="vip-service-con-title text-center text-xl mt-4 mb-6">🎉 恭喜成为VIP会员！</div>
-                        <div class="vip-service-con text-center">使用中如果有问题，可以加微信: tiankongfei12345 处理，请备注【DayDayMoment会员】，再次感谢信任和支持！</div>
+                        <div class="vip-service-con text-center">使用中如果有问题，可以加微信: tiankongfei12345 处理，请备注【DayDayLove会员】，再次感谢信任和支持！</div>
                     </div>
                 </div>
             </div>

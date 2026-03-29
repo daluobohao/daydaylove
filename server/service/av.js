@@ -325,6 +325,8 @@ async function syncOrderYungouos(params) {
         member = userMember.v1
     } else if (plusinfo.m == 12) { // 年会员
         member = userMember.v2
+    } else if(plusinfo.m === 666) {
+        member = useMember.v3
     }
     item.set('member',  member)
     console.log("syncOrder:", params)

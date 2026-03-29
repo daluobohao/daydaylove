@@ -132,11 +132,6 @@
 
             <div class="w-4/12 flex items-center justify-end">
 
-                <el-button color="#EB455F" class="cursor-pointer ml-2" type="danger" @click="downloadImage">
-                    <svg t="1676391483587" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9521" width="16" height="16"><path d="M810.667 554.667l0 213.333-597.333 0 0-213.333-85.333 0 0 298.667 768 0 0-298.667z" p-id="9522" fill="#ffffff"></path><path d="M512 682.667l170.667-213.333-128 0 0-298.667-85.333 0 0 298.667-128 0z" p-id="9523" fill="#ffffff"></path></svg>
-                    <span class="ml-1">下载</span>
-                </el-button>
-
                 <el-button @click="upgradeMembership" type="danger" v-if="!memberVerify">
                     会员
                 </el-button>
@@ -152,9 +147,7 @@
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item command="myInfo" :icon="User">个人信息</el-dropdown-item>
                                 <el-dropdown-item command="updradeMember" :icon="Present" v-if="memberVerify">升级会员</el-dropdown-item>
-                                <el-dropdown-item command="exportToJSON" :icon="Document">导出配置</el-dropdown-item>
                                 <el-dropdown-item command="quit" divided class="" :icon="SwitchButton">退出</el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
@@ -163,12 +156,6 @@
             </div>
         </div>
         <Membership :memberParams="memberDialogParams" v-on:memberListen="memberListen"></Membership>
-        <el-dialog
-            title="个人信息"
-            v-model="myInfoDialogVisible">
-            <div><span class="font-bold">登录邮箱：</span>{{ user.email }}</div>
-            <div class="mt-4"><span class="font-bold">有效期至：</span> {{ new Date(member.expirationAt).toLocaleString().split(' ')[0] }}</div>
-        </el-dialog>
     </div>
 </template>
 <script setup lang="ts">
@@ -181,13 +168,12 @@ import {
   ElDropdownItem,
   ElUpload,
   ElTooltip,
-  ElDialog,
   ElSlider,
   ElInputNumber,
   ElColorPicker,
   ID_INJECTION_KEY
 } from "element-plus";
-import { ArrowDown, SwitchButton, Document } from '@element-plus/icons-vue'
+import { ArrowDown, SwitchButton, Present } from '@element-plus/icons-vue'
 import { getCookie, clearLocal } from "~/assets/js/utils/tools"
 import axios from 'axios'
 import eventBus from '~/assets/js/lib/eventBus'
@@ -198,9 +184,6 @@ const user = useState("user")
 // MemberShip
 const memberDialogParams = ref({flag: false, type: 1})
 const member = useState("member")
-
-
-const myInfoDialogVisible = ref(false)
 const activeType = ref("")
 const zindexPopVisible = ref(false)
 const activeZindexPopValue= ref([0, 3])
@@ -294,12 +277,8 @@ const handleCommand = (command: string | number | object) => {
     if (command === 'quit') {
         clearLocal()
         window.location.href = "/";
-    } else if (command === 'exportToJSON') {
-        exportStageToJSON()
     } else if (command === 'updradeMember') {
         upgradeMembership()
-    } else if (command === 'myInfo') {
-        myInfoDialogVisible.value = true
     }
 }
 
@@ -329,10 +308,6 @@ const onUploadChange = async () => {
     imageUploadContent.value.token = res.data.token
 }
 
-
-const downloadImage = () => {
-    eventBus.emit('edit', {type: "download"})
-}
 
 const onPreviewAction = (params:any) => {
     console.log("config:", params)
@@ -451,11 +426,6 @@ const colorChange = (num) => {
         }
     }
 
-}
-
-// menu part
-const exportStageToJSON = () => {
-    eventBus.emit('edit', {type: "export"})
 }
 
 // VIP
