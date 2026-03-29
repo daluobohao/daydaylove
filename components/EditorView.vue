@@ -162,7 +162,7 @@ const toRows = (item: ProfileItem): ProfileRow[] => [
     { label: '自我介绍', value: item.intro, multiline: true },
     { label: '对对方的要求', value: item.partnerRequirement, multiline: true },
     { label: '微信', value: item.wechat, multiline: true },
-    ...(item.photoLink ? [{ label: '个人照片(网盘链接)', value: item.photoLink }] : []),
+    // ...(item.photoLink ? [{ label: '个人照片(网盘链接)', value: item.photoLink }] : []),
     { label: '照片', photos: item.photos }
 ]
 

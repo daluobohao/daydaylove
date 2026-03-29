@@ -128,7 +128,7 @@ const generateCodeStr = async () => {
         return
     }
     const payProduct: Record<number, string> = { 1: '普通会员', 12: 'VIP会员', 666: 'SVIP会员' }
-    const fees: Record<number, number> = { 1: 0.1, 12: 0.2, 666: 0.3 }
+    const fees: Record<number, number> = { 1: 15.8, 12: 60, 666: 298 }
     let r = uuid()
     let d = type
     let userId = user.value && user.value.userId
