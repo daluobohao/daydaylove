@@ -5,7 +5,8 @@
     "dev": "NODE_OPTIONS=--no-deprecation nuxt dev --port 3334 --host 0.0.0.0",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "import:users": "npx tsx scripts/import-users.ts"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.1.3",

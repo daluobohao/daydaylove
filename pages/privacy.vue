@@ -15,13 +15,13 @@ p {
     <div class="max-w-screen-xl m-auto px-4 lg:px-10 pt-10 pb-20 text-gray-500">
         <div class="text-4xl text-black">Privacy</div>
 
-        <p>Daydaymoment built the Daydaymoment service (including all apps we provided) as a Commercial service. This SERVICE is provided by Daydaymoment and is intended for use as is.</p>
+        <p>daydaylove built the daydaylove service (including all apps we provided) as a Commercial service. This SERVICE is provided by daydaylove and is intended for use as is.</p>
 
         <p>This page is used to inform visitors regarding our policies with the collection, use, and disclosure of Personal Information if anyone decided to use our Service.</p>
 
         <p>If you choose to use our Service, then you agree to the collection and use of information in relation to this policy. The Personal Information that we collect is used for providing and improving the Service. We will not use or share your information with anyone except as described in this Privacy Policy.</p>
 
-        <p>The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which is accessible at Daydaymoment unless otherwise defined in this Privacy Policy.</p>
+        <p>The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which is accessible at daydaylove unless otherwise defined in this Privacy Policy.</p>
 
         <div class="text-2xl text-black">Information Collection and Use</div>
         <p>For a better experience, while using our Service, we may require you to provide us with certain personally identifiable information. The information that we request will be retained by us and used as described in this privacy policy.</p>
@@ -77,7 +77,7 @@ export default {
     name: "Terms",
     head() {
         return {
-            title: '隐私政策 - Daydaymoment.com',
+            title: '隐私政策 - daydaylove.com',
         }
     },
     components: { Nav }

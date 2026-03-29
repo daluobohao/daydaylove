@@ -5,7 +5,7 @@ async function getSign(req) {
     var secretKey = 'ABKgEBrcFGcOya7yjcJEkrZI0Ph14cZ0FOF9-ROW';
     var mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
     var options = {
-        scope: 'daydaymoment',
+        scope: 'daydaylove',
       };
       var putPolicy = new qiniu.rs.PutPolicy(options);
       var uploadToken = putPolicy.uploadToken(mac);

@@ -5,7 +5,7 @@ const YUNGOU = {
     // notify_url: "https://wang-hao-hao.cn/api/pay/yungou", // 回调通知地址
     notify_url: "https://howard-foster-affect-rock.trycloudflare.com/api/pay/yungou",
     api_url: "https://api.pay.yungouos.com/api/pay/wxpay/nativePay",
-    default_name: "DayDayMoment会员"
+    default_name: "daydaylove会员"
 }
 
 // Leancloud开发配置

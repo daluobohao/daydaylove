@@ -47,7 +47,7 @@
       ID_INJECTION_KEY
     } from "element-plus";
     import axios from 'axios'
-    import { setCookie } from "~/assets/js/utils/tools"
+    import { setCookie, removeLocalEncrpt } from "~/assets/js/utils/tools"
 
     provide(ID_INJECTION_KEY, {
           prefix: 100,
@@ -103,6 +103,7 @@
                     })
                     loadingFlag.value = false
                 } else if (res.userId) {
+                    removeLocalEncrpt('__r')
                     setCookie("__user", encodeURIComponent(JSON.stringify(res)), 365)
 
                     loadingFlag.value = false

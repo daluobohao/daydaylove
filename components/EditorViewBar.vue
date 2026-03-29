@@ -132,9 +132,14 @@
 
             <div class="w-4/12 flex items-center justify-end">
 
-                <el-button @click="upgradeMembership" type="danger" v-if="!memberVerify">
-                    会员
-                </el-button>
+                <div class="flex items-center gap-2">
+                    <el-button @click="upgradeMembership" type="danger" v-if="!memberVerify">
+                        会员
+                    </el-button>
+                    <el-button @click="upgradeMembership" type="danger" plain v-if="memberVerify && !isSvip">
+                        升级会员
+                    </el-button>
+                </div>
 
                 <div class="ml-4">
                     <el-dropdown @command="handleCommand">
@@ -147,15 +152,14 @@
                         </span>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item command="updradeMember" :icon="Present" v-if="memberVerify">升级会员</el-dropdown-item>
-                                <el-dropdown-item command="quit" divided class="" :icon="SwitchButton">退出</el-dropdown-item>
+                                <el-dropdown-item command="quit" :icon="SwitchButton">退出</el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
                 </div>
             </div>
         </div>
-        <Membership :memberParams="memberDialogParams" v-on:memberListen="memberListen"></Membership>
+        <Membership :memberParams="membershipPayload" v-on:memberListen="memberListen"></Membership>
     </div>
 </template>
 <script setup lang="ts">
@@ -173,8 +177,10 @@ import {
   ElColorPicker,
   ID_INJECTION_KEY
 } from "element-plus";
-import { ArrowDown, SwitchButton, Present } from '@element-plus/icons-vue'
+import { computed } from 'vue'
+import { ArrowDown, SwitchButton } from '@element-plus/icons-vue'
 import { getCookie, clearLocal } from "~/assets/js/utils/tools"
+import { USER_MEMBER } from '~/constants/memberTiers'
 import axios from 'axios'
 import eventBus from '~/assets/js/lib/eventBus'
 
@@ -182,8 +188,14 @@ import eventBus from '~/assets/js/lib/eventBus'
 const user = useState("user")
 
 // MemberShip
-const memberDialogParams = ref({flag: false, type: 1})
-const member = useState("member")
+const memberDialogParams = ref({ flag: false })
+const member = useState<{ member?: string; verify?: boolean } | null>('member', () => null)
+const membershipPayload = computed(() => ({
+    flag: memberDialogParams.value.flag,
+    member: member.value?.member,
+    verify: !!(member.value && member.value.verify),
+}))
+const isSvip = computed(() => member.value?.member === USER_MEMBER.v3)
 const activeType = ref("")
 const zindexPopVisible = ref(false)
 const activeZindexPopValue= ref([0, 3])
@@ -277,8 +289,6 @@ const handleCommand = (command: string | number | object) => {
     if (command === 'quit') {
         clearLocal()
         window.location.href = "/";
-    } else if (command === 'updradeMember') {
-        upgradeMembership()
     }
 }
 
@@ -429,10 +439,7 @@ const colorChange = (num) => {
 }
 
 // VIP
-const memberVerify = computed(() => {
-    console.log("member:", member.value)
-    return member.value && member.value.verify
-})
+const memberVerify = computed(() => member.value && member.value.verify)
 const upgradeMembership = async () => {
     memberDialogParams.value.flag = true
 }

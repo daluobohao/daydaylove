@@ -6,7 +6,7 @@
       </a>
       <div class="flex space-x-10 items-center">
           <a href="/" class="hidden lg:block">主页</a>
-          <a href="/editor" class="hidden lg:block" v-if="user.email">编辑</a>
+          <a href="/editor" class="hidden lg:block" v-if="user.email">好友专区</a>
           <div class="flex items-center justify-end" v-if="user.email">
               <el-dropdown>
                   <div class="flex items-center">

@@ -56,10 +56,28 @@ export async function requestPost(url, data) {
 export async function synchronizationUserState(flag) {
     let localR = getLocalEncrpt('__r')
     const obj = localR ? JSON.parse(localR) : {}
+    let currentUserId = null
+    try {
+        const cookieRaw = getCookie('__user')
+        if (cookieRaw) {
+            currentUserId = JSON.parse(decodeURIComponent(cookieRaw)).userId || null
+        }
+    } catch (_) {
+        currentUserId = null
+    }
 
     if (flag) {// 重置
     } else {
-        if (obj && obj.verify && (new Date().toDateString() === new Date(obj.timeAt).toDateString())) {// ignore today
+        const sameUser =
+            currentUserId != null &&
+            obj.userId != null &&
+            String(obj.userId) === String(currentUserId)
+        if (
+            obj &&
+            obj.verify &&
+            sameUser &&
+            new Date().toDateString() === new Date(obj.timeAt).toDateString()
+        ) {
             return true
         }
     }

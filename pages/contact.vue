@@ -14,7 +14,7 @@ p {
     <Nav class="bg-yellow"/>
     <div class="max-w-screen-xl m-auto px-4 lg:px-10 pt-10 pb-20 text-gray-500 mt-20">
         <div class="text-4xl text-black">沟通建议</div>
-        <p>微信(请备注: daydaymoment): tiankongfei12345</p>
+        <p>微信(请备注: daydaylove): tiankongfei12345</p>
     </div>
     <Footer class="fixed w-full bottom-0"></Footer>
  </div>

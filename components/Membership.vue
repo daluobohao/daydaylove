@@ -3,42 +3,75 @@ import {
   ElDialog,
   ElMessage,
 } from "element-plus";
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import QrcodeVue from 'qrcode.vue'
 import eventBus from '~/assets/js/lib/eventBus'
 import { uuid, synchronizationUserState, getLocalEncrpt } from "~/assets/js/utils/tools"
+import { USER_MEMBER } from '~/constants/memberTiers'
 
 import axios from 'axios'
 
-const props = defineProps({
-  memberParams: Object
-})
+type MemberDialogParams = {
+  flag?: boolean
+  member?: string
+  verify?: boolean
+}
+
+const props = defineProps<{
+  memberParams?: MemberDialogParams
+}>()
 const emit = defineEmits(["memberListen"]);
 const user = useState("user")
-const member = ref(useState("member"))
 
 const memberDialogShowFlag = ref(false)
 const active = ref(1)
-const vipPayQrcode = ref(12)
+const vipPayQrcode = ref(1)
 const intervalNum = ref(60)
 const codeDataStr = ref("")
-let qrcodeObjTmp = {}
-let intervalTimer = null
+const lastPaidProduct = ref<number | null>(null)
+let qrcodeObjTmp: Record<number, { r: string; code: string }> = {}
+let intervalTimer: ReturnType<typeof setInterval> | null = null
 
+const visiblePlanIds = computed(() => {
+    const p = props.memberParams
+    if (!p) return [1, 12, 666]
+    const v = !!p.verify
+    const m = p.member
+    if (!v) return [1, 12, 666]
+    if (m === USER_MEMBER.basic) return [12, 666]
+    if (m === USER_MEMBER.v1 || m === USER_MEMBER.v2) return [666]
+    if (m === USER_MEMBER.v3) return []
+    return [12, 666]
+})
+
+const dialogTitle = computed(() =>
+    props.memberParams?.verify ? '升级会员' : '加入会员'
+)
+
+const successTitle = computed(() => {
+    const t = lastPaidProduct.value
+    if (t === 1) return '🎉 你已是普通会员'
+    if (t === 12) return '🎉 恭喜成功办理 VIP 会员'
+    if (t === 666) return '🎉 你已成功办理 SVIP 会员'
+    return '🎉 支付成功'
+})
 
 const cancelDialog = () => {
     clearOrderInterval()
     emit('memberListen', {type: "cancel"});
 }
 const refreshState = async () => {
+    // 先通知编辑器进入「资料加载中」，避免会员态已更新而列表仍是旧数据造成 tip / 列表不同步
+    eventBus.emit('editor-profiles-reloading')
     await synchronizationUserState(true)
-    const member = getLocalEncrpt("__r")
-    if (member) {
-        const obj = JSON.parse(decodeURIComponent(member))
+    const raw = getLocalEncrpt("__r")
+    if (raw) {
+        const obj = JSON.parse(decodeURIComponent(raw))
         eventBus.emit('member', obj)
     }
 }
 const paySuccess = () => {
+    lastPaidProduct.value = vipPayQrcode.value
     active.value = 3
     setTimeout(() => {
         refreshState()
@@ -94,8 +127,8 @@ const generateCodeStr = async () => {
         codeDataStr.value = qrcodeObjTmp[type].code
         return
     }
-    let payProduct = {"1": "普通会员", "12": "VIP会员", '666': "SVIP会员"}
-    let fees = {"1": 0.1, "12": 0.2, '666': 0.3}
+    const payProduct: Record<number, string> = { 1: '普通会员', 12: 'VIP会员', 666: 'SVIP会员' }
+    const fees: Record<number, number> = { 1: 0.1, 12: 0.2, 666: 0.3 }
     let r = uuid()
     let d = type
     let userId = user.value && user.value.userId
@@ -119,37 +152,52 @@ const generateCodeStr = async () => {
     }
 }
 
-const getUuidFrom = (name) => {
+const getUuidFrom = (name: 'r') => {
     const type = vipPayQrcode.value
-    return qrcodeObjTmp[type][name] || ""
+    const entry = qrcodeObjTmp[type]
+    if (!entry || name !== 'r') return ''
+    return entry.r || ''
 }
 const beginInterval = () => {
     generateCodeStr()
     orderInterval()
 }
 
-const priceSelect = (mon) => {
+const priceSelect = (mon: number) => {
     vipPayQrcode.value = mon
     beginInterval()
 }
 
-watch(() => props.memberParams.flag, (first, second) => {
-    if (first) {
-        memberDialogShowFlag.value = true
-        beginInterval()
-    } else {
-        memberDialogShowFlag.value = false
+watch(
+    () => props.memberParams?.flag,
+    async (open) => {
+        if (open) {
+            active.value = 1
+            lastPaidProduct.value = null
+            qrcodeObjTmp = {}
+            clearOrderInterval()
+            const ids = visiblePlanIds.value
+            if (!ids.length) {
+                memberDialogShowFlag.value = false
+                return
+            }
+            vipPayQrcode.value = ids[0]!
+            memberDialogShowFlag.value = true
+            await nextTick()
+            beginInterval()
+        } else {
+            memberDialogShowFlag.value = false
+            clearOrderInterval()
+        }
     }
-});
-onMounted(() => {
-})
+)
 
 </script>
 
 <template>
     <div>
         <el-dialog
-            title="加入会员"
+            :title="dialogTitle"
             v-model="memberDialogShowFlag"
             width="60%"
             v-on:close="cancelDialog"
@@ -161,21 +209,38 @@ onMounted(() => {
                             <ul class="vip-fuc-ul">
                                 <li class="vip-fuc-li">
                                     <s></s>
-                                    <span>限时优惠</span>
+                                    <span>限时优惠(如下信息性别不限，女性较多)</span>
                                 </li>
-
+                                <li class="vip-fuc-li">
+                                    <s></s>
+                                    <span>普通会员: 2条信息</span>
+                                </li>
+                                <li class="vip-fuc-li">
+                                    <s></s>
+                                    <span>vip会员: 8条信息</span>
+                                </li>
+                                <li class="vip-fuc-li">
+                                    <s></s>
+                                    <span>SVIP会员: 40条信息</span>
+                                </li>
                             </ul>
                         </div>
                         <div class="w-2/3 px-8">
-                            <div class="vip-pay-time flex justify-between space-x-6 w-full mt-4">
-                                <div class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 1 }" @click="priceSelect(1)">
+                            <div
+                                class="vip-pay-time flex flex-wrap w-full mt-4 gap-4"
+                                :class="visiblePlanIds.length < 3 ? 'justify-center' : 'justify-between'">
+                                <div
+                                    v-if="visiblePlanIds.includes(1)"
+                                    class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 1 }" @click="priceSelect(1)">
                                     <div>普通会员</div>
                                     <div>15.8元 <span class="vip-pay-time-item-old">19.8元</span></div>
                                     <div class="absolute right-0 bottom-0" v-if="vipPayQrcode === 1">
                                         <svg t="1676781023946" class="icon" viewBox="0 0 1321 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6720" width="16" height="16"><path d="M15.240657 514.844738L401.455434 1002.752502c20.335644 20.335644 60.977394 30.496081 81.313038 10.160437l10.160438-10.160437L1306.000217 87.988209c20.335644-20.335644 20.335644-50.816957 0-71.1526-10.160438-20.320875-40.641751-20.320875-60.977395-10.160438l-802.910869 680.95608L116.87457 413.210825a92.344792 92.344792 0 0 0-101.633913 0c-20.320875 40.656519-20.320875 71.182136 0 101.633913z" fill="#EB455F" p-id="6721"></path></svg>
                                     </div>
                                 </div>
-                                <div class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 12 }" @click="priceSelect(12)">
+                                <div
+                                    v-if="visiblePlanIds.includes(12)"
+                                    class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 12 }" @click="priceSelect(12)">
                                     <div>VIP会员</div>
                                     <div>60元 <span class="vip-pay-time-item-old">120元</span></div>
                                     <div class="vip-pay-time-best">最多人选择</div>
@@ -183,7 +248,9 @@ onMounted(() => {
                                         <svg t="1676781023946" class="icon" viewBox="0 0 1321 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6720" width="16" height="16"><path d="M15.240657 514.844738L401.455434 1002.752502c20.335644 20.335644 60.977394 30.496081 81.313038 10.160437l10.160438-10.160437L1306.000217 87.988209c20.335644-20.335644 20.335644-50.816957 0-71.1526-10.160438-20.320875-40.641751-20.320875-60.977395-10.160438l-802.910869 680.95608L116.87457 413.210825a92.344792 92.344792 0 0 0-101.633913 0c-20.320875 40.656519-20.320875 71.182136 0 101.633913z" fill="#EB455F" p-id="6721"></path></svg>
                                     </div>
                                 </div>
-                                <div class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 666 }" @click="priceSelect(666)">
+                                <div
+                                    v-if="visiblePlanIds.includes(666)"
+                                    class="vip-pay-time-item" v-bind:class="{ 'vip-pay-time-item-active': vipPayQrcode === 666 }" @click="priceSelect(666)">
                                     <div>SVIP会员</div>
                                     <div>298元 <span class="vip-pay-time-item-old">999元</span></div>
                                     <div class="vip-pay-time-best">限量</div>
@@ -223,7 +290,7 @@ onMounted(() => {
                             speed="1"
                             />
                         </div>
-                        <div class="vip-service-con-title text-center text-xl mt-4 mb-6">🎉 恭喜成为VIP会员！</div>
+                        <div class="vip-service-con-title text-center text-xl mt-4 mb-6">{{ successTitle }}</div>
                         <div class="vip-service-con text-center">使用中如果有问题，可以加微信: tiankongfei12345 处理，请备注【DayDayLove会员】，再次感谢信任和支持！</div>
                     </div>
                 </div>

@@ -13,6 +13,8 @@ AV.Cloud.useMasterKey();
 
 const userMember = {
     normal: "0xnab1",
+    /** 普通会员（前端支付档位 m=1） */
+    basic: "0xb4s1c2",
     v1: "0xn33b2",
     v2: "fdf23f",
     v3: "v62223f",
@@ -196,7 +198,13 @@ async function synchronizationUserInfo(body, headers) {
             const date = new Date().getTime()
             const expireTime = payload.expirationAt
             if (payload.expirationAt && (date < expireTime)) { // 会员判断过期时间，未过期则成功返回，过期则返回
-                const data = {"verify": userVerify.verifed, expirationAt: payload.expirationAt, token}
+                const data = {
+                    "verify": userVerify.verifed,
+                    expirationAt: payload.expirationAt,
+                    token,
+                    member: payload.member,
+                    userId: payload.userId,
+                }
                 return data
             }
         }
@@ -212,14 +220,18 @@ async function synchronizationUserInfo(body, headers) {
         let data = {}
         const date = new Date().getTime()
         const expireTime = userAndExpiration.expirationAt
-        if (userAndExpiration.expirationAt && (date < expireTime)) { // 如果有效期内，则设定有效期token
+        const expValid =
+            typeof expireTime === 'number' &&
+            Number.isFinite(expireTime) &&
+            date < expireTime
+        if (expValid) { // 如果有效期内，则设定有效期token
             // jws generate token
             const userId = userAndExpiration.userId
             const expirationAt = userAndExpiration.expirationAt
             const member = userAndExpiration.member
             const user = {userId, expirationAt, member}
             const token = await jws.sign(user, new Date().getTime() / 1000)
-            data = {"verify": userVerify.verifed, expirationAt, token}
+            data = {"verify": userVerify.verifed, expirationAt, token, member, userId}
         } else { // 非有效期
             data = {"verify":  userVerify.noverifed}
         }
@@ -237,9 +249,11 @@ async function _getMembership(userId) {
     return Membership.first().then(function(account) {
         let newItem = {}
         if (account) {
+            const expRaw = account.get('expirationAt')
+            const expMs = expRaw != null ? new Date(expRaw).getTime() : NaN
             newItem = {
                 userId: account.get('userObjectId'),
-                expirationAt: new Date(account.get('expirationAt')).getTime(),
+                expirationAt: Number.isFinite(expMs) ? expMs : undefined,
                 member: account.get('member'),
                 level: account.get('level')
             }
@@ -269,7 +283,7 @@ async function queryPayOrder(body) {
                 amount: obj.get('amount'),
                 payway: obj.get('payway'),
                 state: obj.get('state'),
-                user_id: obj.get('userObjectId'),
+                user_id: obj.get('user_id'),
                 qr_id: obj.get('qr_id'),
                 limit: obj.get('limit'),
                 member: obj.get('member')
@@ -321,12 +335,12 @@ async function syncOrderYungouos(params) {
     item.set('user_id', plusinfo.uid)
     item.set('qr_id', plusinfo.r)
     let member = ""
-    if (plusinfo.m == 1) { // 月会员
+    if (plusinfo.m == 1) {
+        member = userMember.basic
+    } else if (plusinfo.m == 12) {
         member = userMember.v1
-    } else if (plusinfo.m == 12) { // 年会员
-        member = userMember.v2
-    } else if(plusinfo.m === 666) {
-        member = useMember.v3
+    } else if (plusinfo.m == 666 || plusinfo.m === "666") {
+        member = userMember.v3
     }
     item.set('member',  member)
     console.log("syncOrder:", params)
@@ -358,11 +372,15 @@ async function updatePayUserExp(params) {
     let member = params.member //"oxfs1";//
     console.log("updatePayUserExp:", params)
 
-    let type = ""
-    if (member == userMember.v1) {
+    let type = null
+    if (member == userMember.basic) {
         type = 31
+    } else if (member == userMember.v1) {
+        type = 365
     } else if (member == userMember.v2) {
         type = 365
+    } else if (member == userMember.v3) {
+        type = 3650
     }
 
     const days = {
@@ -373,44 +391,45 @@ async function updatePayUserExp(params) {
         31: 31 * 24 * 60 * 60 * 1000,
         91: 91 * 24 * 60 * 60 * 1000,
         183: 183 * 24 * 60 * 60 * 1000,
-        365: 365 * 24 * 60 * 60 * 1000
+        365: 365 * 24 * 60 * 60 * 1000,
+        3650: 3650 * 24 * 60 * 60 * 1000,
     }
-    const updateTime = days[type]
-    console.log("updatePayUserExp:11:", type,updateTime)
+    const updateTime = type != null ? days[type] : null
+    console.log("updatePayUserExp:11:", type, updateTime)
+    if (updateTime == null) {
+        console.warn("updatePayUserExp: unknown member tier", member)
+        return Promise.resolve({data: {err: `unknown member tier: ${member}`}})
+    }
     const expiration = new AV.Query('Membership')
     expiration.equalTo('userObjectId', id)
     return expiration.first().then(function(account) {
-        let orgExporationAt = account.get('expirationAt')
-        console.log("updatePayUserExp:333:", orgExporationAt)
-        if (account) {
-            const objectId = account.id
-            console.log('==objectId===', objectId)
-            const exp = AV.Object.createWithoutData('Membership', objectId)
-            // 设置过期时间
-            const date = new Date()
-            let baseTime = date.getTime()
-            if (orgExporationAt) {
-                orgExporationAt = new Date(orgExporationAt).getTime()
-            }
-            console.log('==account===', orgExporationAt, baseTime)
-
-            if (orgExporationAt && (orgExporationAt > baseTime)) {
-                baseTime = orgExporationAt
-            }
-            console.log(orgExporationAt, baseTime)
-            date.setTime(baseTime + updateTime)
-            exp.set('expirationAt', date)
-            exp.set('member', member)
-            // 保存到云端
-            return exp.save().then((res) => {
-                return {data: res}
-            })
-        } else {
+        if (!account) {
             const error = `no user ${id}`
-            ctx.app.logger.error(error)
+            console.error(error)
             return {data: {err: error}}
         }
+        let orgExporationAt = account.get('expirationAt')
+        console.log("updatePayUserExp:333:", orgExporationAt)
+        const objectId = account.id
+        console.log('==objectId===', objectId)
+        const exp = AV.Object.createWithoutData('Membership', objectId)
+        const date = new Date()
+        let baseTime = date.getTime()
+        if (orgExporationAt) {
+            orgExporationAt = new Date(orgExporationAt).getTime()
+        }
+        console.log('==account===', orgExporationAt, baseTime)
 
+        if (orgExporationAt && (orgExporationAt > baseTime)) {
+            baseTime = orgExporationAt
+        }
+        console.log(orgExporationAt, baseTime)
+        date.setTime(baseTime + updateTime)
+        exp.set('expirationAt', date)
+        exp.set('member', member)
+        return exp.save().then((res) => {
+            return {data: res}
+        })
     })
 }
 
@@ -452,4 +471,179 @@ async function onYungouosHook(body) {
     return result
 }
 
-export {signupUser, signinUser, forgetUser, getItemsByTitle, getItemsByTag, synchronizationUserInfo, queryPayOrder, onYungouosHook}
+/**
+ * 将资料逐条写入 LeanCloud 自定义类 Users（非登录表 _User）。
+ * 需在控制台创建 Class「Users」，建议字段：sex、birth、intro、partnerRequirement、wechat、photoLink（可选）、photos（Array）、sortOrder（Number）。
+ */
+async function importProfilesToUsersClass(rows) {
+    if (!Array.isArray(rows) || rows.length === 0) {
+        return {count: 0, objectIds: []}
+    }
+    const Cls = AV.Object.extend('Users')
+    const objectIds = []
+    for (let i = 0; i < rows.length; i++) {
+        const r = rows[i]
+        const o = new Cls()
+        o.set('sex', r.sex || '')
+        o.set('birth', r.birth || '')
+        o.set('intro', r.intro || '')
+        o.set('partnerRequirement', r.partnerRequirement || '')
+        o.set('wechat', r.wechat || '')
+        if (r.photoLink) {
+            o.set('photoLink', r.photoLink)
+        }
+        o.set('photos', Array.isArray(r.photos) ? r.photos : [])
+        o.set('sortOrder', i)
+        const saved = await o.save()
+        objectIds.push(saved.id)
+    }
+    return {count: objectIds.length, objectIds}
+}
+
+/**
+ * 与编辑器可见条数一致：未开通 1、普通 2、VIP 8、SVIP 40
+ */
+function profilesVisibleLimit(verify, member) {
+    if (!verify) return 1
+    if (member === userMember.v3) return 40
+    if (member === userMember.v1 || member === userMember.v2) return 8
+    if (member === userMember.basic) return 2
+    if (verify && member === userMember.normal) return 2
+    return 2
+}
+
+/**
+ * 校验 x-ut 签名有效且载荷 userId 与 x-ui 一致（再交由 synchronizationUserInfo 解析会员态）
+ */
+async function assertSessionUserMatchesHeaders(headers) {
+    const userId = headers['x-ui']
+    const token = headers['x-ut']
+    if (!userId || !token) {
+        const e = new Error('未登录')
+        e.statusCode = 401
+        throw e
+    }
+    let decoded
+    try {
+        decoded = await jws.verify(token)
+    } catch (_) {
+        const e = new Error('令牌无效')
+        e.statusCode = 401
+        throw e
+    }
+    const payload = decoded.payload
+    if (!payload || !payload.userId || String(payload.userId) !== String(userId)) {
+        const e = new Error('身份不一致')
+        e.statusCode = 403
+        throw e
+    }
+}
+
+/**
+ * 读取 LeanCloud 类 Users 资料（按 sortOrder 升序，最多 maxRows 条，上限 1000）
+ */
+async function listUsersProfiles(maxRows = 1000) {
+    const n = Math.min(1000, Math.max(1, parseInt(maxRows, 10) || 1))
+    const Q = new AV.Query('Users')
+    Q.ascending('sortOrder')
+    Q.limit(n)
+    return Q.find().then((results) => {
+        return results.map((obj) => {
+            const photos = obj.get('photos')
+            return {
+                sex: obj.get('sex') || '',
+                birth: obj.get('birth') || '',
+                intro: obj.get('intro') || '',
+                partnerRequirement: obj.get('partnerRequirement') || '',
+                wechat: obj.get('wechat') || '',
+                photoLink: obj.get('photoLink') || undefined,
+                photos: Array.isArray(photos) ? photos : [],
+            }
+        })
+    })
+}
+
+/**
+ * 编辑器资料列表：先校验 JWS 与 x-ui 一致，再按 synchronizationUserInfo 会员态限条查询；未开通返回微信掩码
+ */
+async function listProfilesForEditor(headers) {
+    await assertSessionUserMatchesHeaders(headers)
+    const info = await synchronizationUserInfo({}, headers)
+    const verify = !!info.verify
+    const member = info.member
+    const limit = profilesVisibleLimit(verify, member)
+    let rows = await listUsersProfiles(limit)
+    if (!verify && rows.length > 0) {
+        rows = rows.map((row, i) => (i === 0 ? {...row, wechat: '****'} : row))
+    }
+    return rows
+}
+
+/**
+ * 当前用户是否已在类 users 中录入过（每人仅允许一条）
+ */
+async function getMyUsersSubmissionStatus(headers) {
+    await assertSessionUserMatchesHeaders(headers)
+    const userId = headers['x-ui']
+    const Q = new AV.Query('users')
+    Q.equalTo('userObjectId', userId)
+    Q.limit(1)
+    const row = await Q.first()
+    if (!row) {
+        return {submitted: false}
+    }
+    return {
+        submitted: true,
+        auditStatus: row.get('auditStatus') || 'pending',
+        objectId: row.id,
+    }
+}
+
+/**
+ * 当前用户首次录入资料 → LeanCloud 类 users（小写）；每位 userObjectId 仅允许一条。
+ * 写入 auditStatus=pending，供后台审核通过后展示。photos：外链 URL 数组，可空。
+ */
+async function saveMyUsersProfile(headers, body) {
+    await assertSessionUserMatchesHeaders(headers)
+    const userId = headers['x-ui']
+    const dupQ = new AV.Query('users')
+    dupQ.equalTo('userObjectId', userId)
+    dupQ.limit(1)
+    const duplicate = await dupQ.first()
+    if (duplicate) {
+        const e = new Error('每位用户仅可录入一次，您已提交过资料')
+        e.statusCode = 409
+        throw e
+    }
+
+    const sex = String(body?.sex ?? '').trim()
+    const birth = String(body?.birth ?? '').trim()
+    const intro = String(body?.intro ?? '').trim()
+    const partnerRequirement = String(body?.partnerRequirement ?? '').trim()
+    const wechat = String(body?.wechat ?? '').trim()
+    if (!sex || !birth || !intro || !partnerRequirement || !wechat) {
+        const e = new Error('请填写性别、出生年月、自我介绍、对对方的要求和微信')
+        e.statusCode = 400
+        throw e
+    }
+    let photos = []
+    if (Array.isArray(body?.photos)) {
+        photos = body.photos.map((u) => String(u || '').trim()).filter(Boolean)
+    }
+
+    const Cls = AV.Object.extend('users')
+    const row = new Cls()
+    row.set('userObjectId', userId)
+    row.set('sex', sex)
+    row.set('birth', birth)
+    row.set('intro', intro)
+    row.set('partnerRequirement', partnerRequirement)
+    row.set('wechat', wechat)
+    row.set('photos', photos)
+    row.set('sortOrder', Date.now())
+    row.set('auditStatus', 'pending')
+    const saved = await row.save()
+    return {objectId: saved.id, auditStatus: 'pending'}
+}
+
+export {signupUser, signinUser, forgetUser, getItemsByTitle, getItemsByTag, synchronizationUserInfo, queryPayOrder, onYungouosHook, importProfilesToUsersClass, listUsersProfiles, listProfilesForEditor, saveMyUsersProfile, getMyUsersSubmissionStatus}
