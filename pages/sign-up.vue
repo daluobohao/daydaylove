@@ -39,7 +39,8 @@ import {
   ElInput,
   ElForm,
   ElFormItem,
-  ElMessage
+  ElMessage,
+  type FormRules,
 } from "element-plus";
 import axios from 'axios'
 import { setCookie, removeLocalEncrpt } from "~/assets/js/utils/tools"
@@ -56,7 +57,7 @@ const validatePass2 = (rule: any, value: any, callback: any) => {
     callback()
   }
 }
-const rules = reactive({
+const rules = reactive<FormRules>({
   email: [
      {
         required: true,

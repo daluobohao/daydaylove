@@ -22,11 +22,11 @@
                         <el-button @click="signinUser" type="primary" class="w-full text-2xl transition-light" style="height:44px;font-size: 16px;">登录</el-button>
                     </div>
             </el-form>
-            <div class="my-4 text-gray-600 text-base text-center flex justify-between items-center">
+            <div class="my-4 text-gray-600 text-base text-center flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
                 <div>
                     如果没有账号，请先<span class="underline text-cus-active text-base cursor-pointer ml-1 font-bold" @click="signup">注册</span>
                 </div>
-                <div class="text-sm text-right text-gray-600 cursor-pointer transition-light hover:text-black" @click="forgetPwd">忘记密码？</div>
+                <div class="text-sm sm:text-right text-gray-600 cursor-pointer transition-light hover:text-black" @click="forgetPwd">忘记密码？</div>
             </div>
         </div>
      </div>
@@ -46,6 +46,7 @@
       ElMessage,
       ID_INJECTION_KEY
     } from "element-plus";
+    import type { FormRules } from "element-plus";
     import axios from 'axios'
     import { setCookie, removeLocalEncrpt } from "~/assets/js/utils/tools"
 
@@ -61,7 +62,7 @@
     const loadingFlag = ref(false)
     const submitForm = reactive({email: "", password: ""})
 
-    const rules = reactive({
+    const rules = reactive<FormRules>({
       email: [
          {
             required: true,

@@ -19,7 +19,7 @@
                 </div>
                 <div class="text-sm text-gray-400 mt-4">会发送重置密码链接至你注册时的邮箱</div>
         </el-form>
-        <div class="my-4 text-gray-600 text-base text-center flex justify-between items-center">
+        <div class="my-4 text-gray-600 text-base text-center flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
             <div>
                 返回<span class="underline text-cus-active text-base cursor-pointer ml-1 font-bold" @click="signin">登录</span>
             </div>
@@ -38,12 +38,13 @@ import {
   ElFormItem,
   ElMessage,
 } from "element-plus";
+import type { FormRules } from "element-plus";
 import axios from 'axios'
 
 const loadingFlag = ref(false)
 const submitForm = reactive({email: ""})
 
-const rules = reactive({
+const rules = reactive<FormRules>({
     email: [
         {
             required: true,

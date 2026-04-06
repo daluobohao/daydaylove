@@ -3,11 +3,12 @@ import {
   ElDialog,
   ElMessage,
 } from "element-plus";
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import QrcodeVue from 'qrcode.vue'
 import eventBus from '~/assets/js/lib/eventBus'
 import { uuid, synchronizationUserState, getLocalEncrpt } from "~/assets/js/utils/tools"
 import { USER_MEMBER } from '~/constants/memberTiers'
+import type { SessionUser } from '~/types/sessionUser'
 
 import axios from 'axios'
 
@@ -21,16 +22,18 @@ const props = defineProps<{
   memberParams?: MemberDialogParams
 }>()
 const emit = defineEmits(["memberListen"]);
-const user = useState("user")
+const user = useState<SessionUser>("user")
 
 const memberDialogShowFlag = ref(false)
 const active = ref(1)
 const vipPayQrcode = ref(1)
-const intervalNum = ref(60)
+const intervalNum = ref(100)
 const codeDataStr = ref("")
 const lastPaidProduct = ref<number | null>(null)
+const isMobile = ref(false)
 let qrcodeObjTmp: Record<number, { r: string; code: string }> = {}
 let intervalTimer: ReturnType<typeof setInterval> | null = null
+let mediaQuery: MediaQueryList | null = null
 
 const visiblePlanIds = computed(() => {
     const p = props.memberParams
@@ -47,6 +50,8 @@ const visiblePlanIds = computed(() => {
 const dialogTitle = computed(() =>
     props.memberParams?.verify ? '升级会员' : '加入会员'
 )
+const dialogWidth = computed(() => (isMobile.value ? '94%' : '60%'))
+const qrcodeSize = computed(() => (isMobile.value ? 220 : 120))
 
 const successTitle = computed(() => {
     const t = lastPaidProduct.value
@@ -103,7 +108,7 @@ const orderState= () => {
 }
 const orderInterval = () => {
     clearOrderInterval()
-    intervalNum.value = 60
+    intervalNum.value = 100
     intervalTimer = setInterval(() => {
         if (intervalNum.value < 1) {
             clearOrderInterval()
@@ -192,6 +197,25 @@ watch(
     }
 )
 
+const syncMobileState = () => {
+    if (!import.meta.client) return
+    isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => {
+    if (!import.meta.client) return
+    mediaQuery = window.matchMedia('(max-width: 768px)')
+    syncMobileState()
+    mediaQuery.addEventListener('change', syncMobileState)
+    window.addEventListener('resize', syncMobileState)
+})
+
+onBeforeUnmount(() => {
+    if (!import.meta.client) return
+    mediaQuery?.removeEventListener('change', syncMobileState)
+    window.removeEventListener('resize', syncMobileState)
+})
+
 </script>
 
 <template>
@@ -199,13 +223,14 @@ watch(
         <el-dialog
             :title="dialogTitle"
             v-model="memberDialogShowFlag"
-            width="60%"
+            :width="dialogWidth"
+            :fullscreen="isMobile"
             v-on:close="cancelDialog"
             center>
             <div class="flex flex-wrap">
                 <div class="w-full" v-if="active == 1">
-                    <div class="flex">
-                        <div class="vip-fuc w-1/3">
+                    <div class="vip-dialog-layout">
+                        <div class="vip-fuc w-full lg:w-1/3">
                             <ul class="vip-fuc-ul">
                                 <li class="vip-fuc-li">
                                     <s></s>
@@ -225,9 +250,9 @@ watch(
                                 </li>
                             </ul>
                         </div>
-                        <div class="w-2/3 px-8">
+                        <div class="w-full lg:w-2/3 px-0 lg:px-8">
                             <div
-                                class="vip-pay-time flex flex-wrap w-full mt-4 gap-4"
+                                class="vip-pay-time flex flex-wrap w-full mt-4 gap-4 lg:gap-4"
                                 :class="visiblePlanIds.length < 3 ? 'justify-center' : 'justify-between'">
                                 <div
                                     v-if="visiblePlanIds.includes(1)"
@@ -261,16 +286,20 @@ watch(
                             </div>
                             <div class="vip-pay-qrcode w-full flex flex-col justify-center">
                                 <div class="vip-pay-qrcode-item relative">
-                                    <div style="width: 120px" class="m-auto relative">
-                                        <qrcode-vue :value="codeDataStr" :size="120" level="H" />
+                                    <div class="m-auto relative vip-qrcode-box">
+                                        <qrcode-vue :value="codeDataStr" :size="qrcodeSize" level="H" />
                                          <!-- <img src="/shoukuan.jpeg" width="120" height="120" alt=""> -->
                                         <div class="absolute left-0 top-0 w-full h-full bg-black bg-opacity-60 flex items-center justify-center cursor-pointer" v-if="intervalNum < 1" @click="beginInterval">
                                             <svg t="1629213204626" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2590" width="32" height="32"><path d="M981.448462 133.180788a35.367512 35.367512 0 0 0-35.367512 35.367512v85.103076a505.092283 505.092283 0 0 0-939.449541 221.046951 35.367512 35.367512 0 0 0 32.604425 38.130599 35.367512 35.367512 0 0 0 35.367512-32.604425 434.357258 434.357258 0 0 1 819.53157-165.785213h-93.944954a35.367512 35.367512 0 1 0 0 71.287641h181.2585a35.367512 35.367512 0 0 0 35.367512-35.367512V168.5483a35.367512 35.367512 0 0 0-35.367512-35.367512z m0 379.095521a35.367512 35.367512 0 0 0-38.130599 32.604425 434.357258 434.357258 0 0 1-819.531571 165.785213h100.023746a35.367512 35.367512 0 1 0 0-71.287642H42.551538a35.367512 35.367512 0 0 0-35.367512 35.367513v181.258499a35.367512 35.367512 0 1 0 71.287642 0v-85.655693a505.092283 505.092283 0 0 0 939.449541-221.046951 35.367512 35.367512 0 0 0-34.814895-37.025364z" fill="#ffffff" p-id="2591"></path></svg>
                                         </div>
                                     </div>
                                 </div>
+                                <div v-if="isMobile" class="text-center mt-3 text-sm text-gray-600">
+                                    请先截图保存二维码，再发送到微信中长按识别完成支付
+                                </div>
                                 <div class="text-center mt-6">
-                                    <span v-if="intervalNum > 0">微信直接扫码付款，付款倒计时：<span class="font-bold">{{intervalNum}}</span> 秒</span>
+                                    <span v-if="intervalNum > 0 && !isMobile">微信直接扫码付款，付款倒计时：<span class="font-bold">{{intervalNum}}</span> 秒</span>
+                                    <span v-if="intervalNum > 0 && isMobile">请截图后发送到微信中长按识别，付款倒计时：<span class="font-bold">{{intervalNum}}</span> 秒</span>
                                     <span v-else>点击可重新生成付款二维码</span>
                                 </div>
                             </div>
@@ -300,6 +329,9 @@ watch(
 </template>
 
 <style>
+.vip-dialog-layout {
+    display: flex;
+}
 .vip-fuc {
     width: 40%;
     border-right: 1px #cacaca solid;
@@ -390,6 +422,9 @@ watch(
 .vip-pay-qrcode {
     margin-top: 20px;
 }
+.vip-qrcode-box {
+    width: 120px;
+}
 .vip-pay-qrcode-money {
     margin-bottom: 6px;
 }
@@ -425,4 +460,34 @@ watch(
     cursor: pointer;
 }
 
+@media (max-width: 768px) {
+    .vip-dialog-layout {
+        display: block;
+    }
+    .vip-fuc {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px #eaeaea solid;
+        padding-bottom: 8px;
+    }
+    .vip-pay-time {
+        margin-top: 10px;
+        gap: 10px;
+    }
+    .vip-pay-time-item {
+        width: calc(50% - 6px);
+        min-width: 132px;
+    }
+    .vip-pay-time-best {
+        top: -22px;
+        right: 8px;
+        font-size: 10px;
+    }
+    .vip-qrcode-box {
+        width: 220px;
+    }
+    .vip-pay-qrcode-item {
+        margin-top: 18px;
+    }
+}
 </style>

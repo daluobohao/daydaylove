@@ -1,7 +1,7 @@
 <template>
     <div class="w-full">
-        <div class="flex items-center border-b py-1 px-4 text-xs" style="height: 43px;">
-            <div class="w-8/12 flex items-center">
+        <div class="mobile-toolbar flex items-center border-b py-1 px-4 text-xs overflow-x-auto" style="height: 43px;">
+            <div class="toolbar-left w-8/12 hidden lg:flex items-center min-w-max lg:min-w-0">
                 <div>
                     <div :class="{'hidden': activeType != 'text'}" class="flex items-center">
                         <div>
@@ -130,7 +130,25 @@
                 </div>
             </div>
 
-            <div class="w-4/12 flex items-center justify-end">
+            <div class="toolbar-right w-4/12 flex items-center justify-end min-w-max lg:min-w-0">
+                <div class="hidden lg:flex items-center rounded border border-gray-200 mr-3 overflow-hidden">
+                    <button
+                        type="button"
+                        class="px-3 py-1.5 text-xs"
+                        :class="editorMainTab === 'view' ? 'bg-cus-lightActive text-cus-active font-medium' : 'text-gray-600'"
+                        @click="editorMainTab = 'view'"
+                    >
+                        资料流
+                    </button>
+                    <button
+                        type="button"
+                        class="px-3 py-1.5 text-xs border-l border-gray-200"
+                        :class="editorMainTab === 'match' ? 'bg-cus-lightActive text-cus-active font-medium' : 'text-gray-600'"
+                        @click="editorMainTab = 'match'"
+                    >
+                        匹配
+                    </button>
+                </div>
 
                 <div class="flex items-center gap-2">
                     <el-button @click="upgradeMembership" type="danger" v-if="!memberVerify">
@@ -144,7 +162,7 @@
                 <div class="ml-4">
                     <el-dropdown @command="handleCommand">
                         <span class="flex items-center">
-                            <span>{{ filterName(user.email) }}</span>
+                            <span>{{ filterName(user?.email) }}</span>
                             <span v-if="memberVerify" class="ml-1">
                                 <svg t="1676988208534" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3087" width="16" height="16"><path d="M493.2 958.1c-6 0-11.7-2.8-15.4-7.6L32.6 370.4c-5.4-7-5.4-16.7 0-23.7L255.2 58.4c3.7-4.8 9.4-7.6 15.4-7.6h445.2c6 0 11.7 2.8 15.4 7.6l222.6 288.2c5.4 7 5.4 16.7 0 23.7L508.6 950.5c-3.6 4.8-9.3 7.6-15.4 7.6zM72.6 358.6l420.6 548.1 420.6-548.1L706.2 89.8h-426L72.6 358.6z" fill="#EB455F" p-id="3088"></path><path d="M919.6 382H66.8c-10.7 0-19.5-8.7-19.5-19.4 0-10.8 8.7-19.5 19.5-19.5h852.9c10.8 0 19.5 8.7 19.5 19.5-0.1 10.7-8.8 19.4-19.6 19.4z" fill="#EB455F" p-id="3089"></path><path d="M492.5 382c-0.1 0-0.1 0 0 0-6.1 0-11.8-2.9-15.5-7.7L255.1 82.1c-6.5-8.6-4.8-20.8 3.7-27.3 8.6-6.5 20.8-4.8 27.3 3.7l206.4 271.9L700.3 58.5c6.5-8.5 18.8-10.1 27.3-3.6 8.6 6.5 10.2 18.7 3.6 27.3L507.9 374.3c-3.7 4.9-9.4 7.7-15.4 7.7z" fill="#EB455F" p-id="3090"></path></svg>
                             </span>
@@ -175,17 +193,21 @@ import {
   ElSlider,
   ElInputNumber,
   ElColorPicker,
-  ID_INJECTION_KEY
 } from "element-plus";
-import { computed } from 'vue'
+import type { UploadUserFile } from 'element-plus'
+import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { ArrowDown, SwitchButton } from '@element-plus/icons-vue'
-import { getCookie, clearLocal } from "~/assets/js/utils/tools"
+import { clearLocal } from "~/assets/js/utils/tools"
 import { USER_MEMBER } from '~/constants/memberTiers'
+import type { SessionUser } from '~/types/sessionUser'
 import axios from 'axios'
 import eventBus from '~/assets/js/lib/eventBus'
 
+type FillPatternItem = { type: string; image: string }
+type FontOption = { value: string; preview: string }
 
-const user = useState("user")
+const user = useState<SessionUser>("user")
+const editorMainTab = useState<'view' | 'entry' | 'match'>('editorMainTab', () => 'view')
 
 // MemberShip
 const memberDialogParams = ref({ flag: false })
@@ -198,14 +220,14 @@ const membershipPayload = computed(() => ({
 const isSvip = computed(() => member.value?.member === USER_MEMBER.v3)
 const activeType = ref("")
 const zindexPopVisible = ref(false)
-const activeZindexPopValue= ref([0, 3])
-const fileList = ref([])
+const activeZindexPopValue = ref<[number, number]>([0, 3])
+const fileList = ref<UploadUserFile[]>([])
 const imageUploadContent = ref({token: "", imageUrl: ""})
 const visible = ref(false)
-const activeFont = ref({preview: ''})
+const activeFont = ref<FontOption>({ value: '', preview: '' })
 const fontSizeVisible = ref(false)
-const activeFontSize = ref()
-const activeColor = ref([])
+const activeFontSize = ref<number | undefined>(undefined)
+const activeColor = ref<string[]>([])
 const selectedColor = ref('#ff4500')
 const selectedColor2 = ref('#ffffff')
 const predefineColors = ref([
@@ -227,7 +249,7 @@ const predefineColors = ref([
 const activeColorType = ref("")
 const fillPatternImageVisible = ref(false)
 const activeFillPatternImage = ref("")
-const fillPatternImageOptions = [{
+const fillPatternImageOptions: FillPatternItem[] = [{
     type: "zhigan",
     image: 'http://localhost:3000/template/text/fill/text_bg_23020701.png'
   }, {
@@ -258,11 +280,11 @@ const fillPatternImageOptions = [{
     type: "qingchun",
     image: 'http://localhost:3000/template/text/fill/text_bg_2023020905.png'
   }]
-  const activeFillPatternImageOptions = ref([])
+const activeFillPatternImageOptions = ref<FillPatternItem[]>([])
 
 
 
-const options = [{
+const options: FontOption[] = [{
     value: 'font23002',
     preview: '/font/preview/syht-heavy.svg'
   }, {
@@ -281,8 +303,9 @@ const options = [{
 ]
 const fontSizeOptions = [12,14,16,18,20,24,28,30,40,50,60,70,90,100,150,200]
 
-const filterName = (name) => {
-    return name && name.split("@")[0]
+const filterName = (name: string | undefined) => {
+    if (!name) return ''
+    return name.split('@')[0] ?? ''
 }
 
 const handleCommand = (command: string | number | object) => {
@@ -292,7 +315,7 @@ const handleCommand = (command: string | number | object) => {
     }
 }
 
-const selectPatternImage = (item) => {
+const selectPatternImage = (item: FillPatternItem) => {
     activeFillPatternImage.value = item.image
     fillPatternImageVisible.value = false
     eventBus.emit('edit', {type: "fillPatternImage", value: item.image})
@@ -309,7 +332,7 @@ nextTick(()=>{
 })
 
 // image upload
-const handleUploadSuccess = async (res) => {
+const handleUploadSuccess = async (res: { key: string }) => {
     const url = 'http://wang-hao-hao.cn/' + res.key + "?imageslim";
     eventBus.emit('edit', {type: "image", key: "replace", value: url})
 }
@@ -334,19 +357,22 @@ const onPreviewAction = (params:any) => {
 
         let fontFamily = config.attrs.fontFamily
         if (fontFamily) {
-            let arr = options.filter(item => item.value == fontFamily)
-            activeFont.value = arr[0]
+            const arr = options.filter(item => item.value == fontFamily)
+            activeFont.value = arr[0] ?? { value: '', preview: '' }
         } else {
-            activeFont.value = {'preview': ''}
+            activeFont.value = { value: '', preview: '' }
         }
 
         let fillPatternImage = config.attrs.fillPatternImageSource
         let fillLinearGradientColorStops = config.attrs.fillLinearGradientColorStops
         if (fillPatternImage) { // 背景填充
-            let items = fillPatternImageOptions.filter(item => fillPatternImage == item.image)
-            let type = items[0].type
-            activeFillPatternImageOptions.value = fillPatternImageOptions.filter(item => type == item.type)
-            activeFillPatternImage.value = fillPatternImage
+            const items = fillPatternImageOptions.filter(item => fillPatternImage == item.image)
+            const head = items[0]
+            if (head) {
+                const t = head.type
+                activeFillPatternImageOptions.value = fillPatternImageOptions.filter(item => t == item.type)
+                activeFillPatternImage.value = fillPatternImage
+            }
         } else if (fillLinearGradientColorStops) {
             selectedColor.value = fillLinearGradientColorStops[1]
             selectedColor2.value = fillLinearGradientColorStops[3]
@@ -377,19 +403,21 @@ const onPreviewAction = (params:any) => {
 }
 
 
-watch(() => activeZindexPopValue.value, (first, second) => {
-    if (first.length > 0 && second.length > 0) {
-        if (first == 6) {
-            eventBus.emit('edit', {type: "zindex", value: "top"})
-        } else if (first == 1) {
-            eventBus.emit('edit', {type: "zindex", value: "bottom"})
-        } else if (first > second) {
-            eventBus.emit('edit', {type: "zindex", value: "up"})
-        } else if (first < second) {
-            eventBus.emit('edit', {type: "zindex", value: "down"})
+watch(
+    activeZindexPopValue,
+    (first, second) => {
+        if (first.length < 2 || second.length < 2) return
+        if (first[1] === 6) {
+            eventBus.emit('edit', { type: 'zindex', value: 'top' })
+        } else if (first[0] === 1) {
+            eventBus.emit('edit', { type: 'zindex', value: 'bottom' })
+        } else if (first[1] > second[1] || first[0] > second[0]) {
+            eventBus.emit('edit', { type: 'zindex', value: 'up' })
+        } else if (first[1] < second[1] || first[0] < second[0]) {
+            eventBus.emit('edit', { type: 'zindex', value: 'down' })
         }
     }
-})
+)
 
 // 监听来自View组件的编辑事件
 eventBus.on('edit2Bar', onPreviewAction)
@@ -397,21 +425,22 @@ eventBus.on('edit2Bar', onPreviewAction)
 
 
 // for image edit
-const actionForImage = (action: String) => {
+const actionForImage = (action: string) => {
     eventBus.emit('edit', {type: "image", key: action})
 }
-const actionForClone = (action: String) => {
+const actionForClone = (action: string) => {
     eventBus.emit('edit', {type: "clone", value: action})
 }
 
 // font edit
-const selectFont = (font) => {
+const selectFont = (font: FontOption) => {
     activeFont.value = font
     visible.value = false
     eventBus.emit('edit', {type: "font", value: font.value})
 }
-const fontSizeClick = (event) => {
-    if (event.target.nodeName == 'INPUT') {
+const fontSizeClick = (event: MouseEvent) => {
+    const target = event.target as HTMLElement | null
+    if (target?.nodeName === 'INPUT') {
         fontSizeVisible.value = true
     }
 }
@@ -419,20 +448,22 @@ const fontSizeChange = () => {
     fontSizeVisible.value = false
     eventBus.emit('edit', {type: "fontSize", value: activeFontSize.value})
 }
-const selectFontSize = (font) => {
-    activeFontSize.value = font
+const selectFontSize = (size: number) => {
+    activeFontSize.value = size
     fontSizeChange()
 }
-const colorChange = (num) => {
+const colorChange = (num: number) => {
     if (activeColorType.value == "fillLinearGradientColorStops") { // 渐变
         const arr = [0, selectedColor.value, 1, selectedColor2.value]
         eventBus.emit('edit', {type: "fillLinearGradientColorStops", value: arr})
     } else {
-        if (num == 0) {
-            eventBus.emit('edit', {type: activeColor.value[0], value: selectedColor.value})
+        if (num === 0) {
+            const t = activeColor.value[0]
+            if (t) eventBus.emit('edit', { type: t, value: selectedColor.value })
         }
-        if (num == 1) {
-            eventBus.emit('edit', {type: activeColor.value[1], value: selectedColor2.value})
+        if (num === 1) {
+            const t = activeColor.value[1]
+            if (t) eventBus.emit('edit', { type: t, value: selectedColor2.value })
         }
     }
 
@@ -443,11 +474,44 @@ const memberVerify = computed(() => member.value && member.value.verify)
 const upgradeMembership = async () => {
     memberDialogParams.value.flag = true
 }
-const memberListen = (params) => {
+const memberListen = (params: { type: string }) => {
     if (params.type == "login") {
         memberDialogParams.value.flag = false
     } else if (params.type == "cancel") {
         memberDialogParams.value.flag = false
     }
 }
+
+const openMembershipDialog = () => {
+    memberDialogParams.value.flag = true
+}
+
+onMounted(() => {
+    eventBus.on('open-membership', openMembershipDialog)
+})
+
+onBeforeUnmount(() => {
+    eventBus.off('open-membership', openMembershipDialog)
+})
 </script>
+<style scoped>
+@media (max-width: 1023px) {
+    .mobile-toolbar {
+        -webkit-overflow-scrolling: touch;
+    }
+    .toolbar-left {
+        width: auto;
+        flex: 1 0 auto;
+    }
+    .toolbar-right {
+        width: auto;
+        flex: 1 0 auto;
+        margin-left: 16px;
+    }
+    .mobile-toolbar :deep(.el-button),
+    .mobile-toolbar :deep(.el-input-number),
+    .mobile-toolbar :deep(.el-color-picker__trigger) {
+        min-height: 36px;
+    }
+}
+</style>

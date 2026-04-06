@@ -1,4 +1,3 @@
-<!-- Please remove this file from your project -->
 <template>
     <div class="w-full px-10 py-8 flex justify-between items-center w-full bg-cus-gfa flex-col-reverse lg:flex-row">
           <div class="text-sm text-gray-500">

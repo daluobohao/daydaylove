@@ -43,14 +43,14 @@
                     <div class="w-16 h-16 border-2 border-cus-active rounded-full flex items-center justify-center font-bold number">2</div>
                     <div class="ml-6 text-left">
                         <div class="font-bold text-xl">录入信息</div>
-                        <div class="text-sm text-gray-600 mt-3">点右上角的好友专区录入个人交友信息</div>
+                        <div class="text-sm text-gray-600 mt-3">登录后进入好友专区录入个人交友信息</div>
                     </div>
                 </div>
                 <div class="w-full lg:w-4/12 flex items-center mt-6">
                     <div class="w-16 h-16 border-2 border-cus-active rounded-full flex items-center justify-center font-bold number">3</div>
                     <div class="ml-6 text-left">
                         <div class="font-bold text-xl">好友信息</div>
-                        <div class="text-sm text-gray-600 mt-3">点右上角的好友专区办理会员查看找男女朋友的好友信息</div>
+                        <div class="text-sm text-gray-600 mt-3">进入好友专区后办理会员，可查看更多找男女朋友的好友信息</div>
                     </div>
                 </div>
             </div>

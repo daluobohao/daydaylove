@@ -27,7 +27,7 @@
 }
 .photos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 12px;
 }
 .photo-item {
@@ -45,6 +45,17 @@
     text-align: center;
     padding: 48px 24px;
     color: #666;
+}
+@media (max-width: 1023px) {
+    .board-view {
+        padding: 12px 16px;
+    }
+}
+@media (max-width: 640px) {
+    .photos-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
 }
 </style>
 
