@@ -8,3 +8,5 @@ node_modules
 dist
 .cursor
 script
+.DS_Store
+ public/.DS_Store
