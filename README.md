@@ -8,7 +8,7 @@ node.js版本16+
 
 server/config/vars.js 配置相应的开发平台需要的变量
 
-## 初始化
+## 初始化 le 
 
 Make sure to install the dependencies:
 
