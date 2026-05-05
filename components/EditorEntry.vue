@@ -116,7 +116,7 @@
         </el-alert>
         <div class="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-2.5 flex items-center justify-between">
             <span class="text-sm font-medium text-gray-800">录入我的资料</span>
-            <div class="flex items-center gap-2">
+            <div v-if="!alreadySubmitted" class="flex items-center gap-2">
                 <span class="completeness-text">资料完善度 {{ completenessPercent }}%</span>
                 <div class="completeness-bar" style="width: 80px;">
                     <div
