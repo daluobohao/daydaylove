@@ -545,19 +545,32 @@ async function assertSessionUserMatchesHeaders(headers) {
 async function listUsersProfiles(maxRows = 1000) {
     const n = Math.min(1000, Math.max(1, parseInt(maxRows, 10) || 1))
     const Q = new AV.Query('Users')
-    Q.ascending('sortOrder')
+    Q.descending('createdAt')
     Q.limit(n)
     return Q.find().then((results) => {
         return results.map((obj) => {
             const photos = obj.get('photos')
+            const hobbies = obj.get('hobbies')
+            const partnerExpect = obj.get('partnerExpect')
+            const location = obj.get('location')
             return {
+                objectId: obj.id,
                 sex: obj.get('sex') || '',
                 birth: obj.get('birth') || '',
+                height: obj.get('height') || '',
+                education: obj.get('education') || '',
+                city: obj.get('city') || '',
+                maritalStatus: obj.get('maritalStatus') || '',
+                avatar: obj.get('avatar') || '',
                 intro: obj.get('intro') || '',
                 partnerRequirement: obj.get('partnerRequirement') || '',
+                partnerExpect: (partnerExpect && typeof partnerExpect === 'object') ? partnerExpect : {},
                 wechat: obj.get('wechat') || '',
                 photoLink: obj.get('photoLink') || undefined,
                 photos: Array.isArray(photos) ? photos : [],
+                hobbies: Array.isArray(hobbies) ? hobbies : [],
+                createdAt: obj.get('createdAt') ? new Date(obj.get('createdAt')).toISOString() : '',
+                location: (location && typeof location === 'object') ? location : null,
             }
         })
     })
@@ -618,6 +631,11 @@ async function saveMyUsersProfile(headers, body) {
 
     const sex = String(body?.sex ?? '').trim()
     const birth = String(body?.birth ?? '').trim()
+    const height = String(body?.height ?? '').trim()
+    const education = String(body?.education ?? '').trim()
+    const city = String(body?.city ?? '').trim()
+    const maritalStatus = String(body?.maritalStatus ?? '').trim()
+    const avatar = String(body?.avatar ?? '').trim()
     const intro = String(body?.intro ?? '').trim()
     const partnerRequirement = String(body?.partnerRequirement ?? '').trim()
     const wechat = String(body?.wechat ?? '').trim()
@@ -630,20 +648,40 @@ async function saveMyUsersProfile(headers, body) {
     if (Array.isArray(body?.photos)) {
         photos = body.photos.map((u) => String(u || '').trim()).filter(Boolean)
     }
+    let hobbies = []
+    if (Array.isArray(body?.hobbies)) {
+        hobbies = body.hobbies.map((h) => String(h || '').trim()).filter(Boolean)
+    }
+    let partnerExpect = {}
+    if (body?.partnerExpect && typeof body.partnerExpect === 'object') {
+        partnerExpect = body.partnerExpect
+    }
+    let location = null
+    if (body?.location && typeof body.location === 'object' && body.location.lat && body.location.lng) {
+        location = { lat: Number(body.location.lat), lng: Number(body.location.lng) }
+    }
 
     const Cls = AV.Object.extend('users')
     const row = new Cls()
     row.set('userObjectId', userId)
     row.set('sex', sex)
     row.set('birth', birth)
+    row.set('height', height)
+    row.set('education', education)
+    row.set('city', city)
+    row.set('maritalStatus', maritalStatus)
+    row.set('avatar', avatar)
     row.set('intro', intro)
     row.set('partnerRequirement', partnerRequirement)
+    row.set('partnerExpect', partnerExpect)
     row.set('wechat', wechat)
     row.set('photos', photos)
+    row.set('hobbies', hobbies)
+    row.set('location', location)
     row.set('sortOrder', Date.now())
     row.set('auditStatus', 'pending')
     const saved = await row.save()
     return {objectId: saved.id, auditStatus: 'pending'}
 }
 
-export {signupUser, signinUser, forgetUser, getItemsByTitle, getItemsByTag, synchronizationUserInfo, queryPayOrder, onYungouosHook, importProfilesToUsersClass, listUsersProfiles, listProfilesForEditor, saveMyUsersProfile, getMyUsersSubmissionStatus}
+export {signupUser, signinUser, forgetUser, getItemsByTitle, getItemsByTag, synchronizationUserInfo, queryPayOrder, onYungouosHook, importProfilesToUsersClass, listUsersProfiles, listProfilesForEditor, saveMyUsersProfile, getMyUsersSubmissionStatus, assertSessionUserMatchesHeaders}

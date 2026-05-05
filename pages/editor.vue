@@ -44,9 +44,7 @@ type MemberSnapshot = {
 } | null
 
 const user = ref({"email": ""})
-/** 与 `EditorTemplate` 共用：右侧主区显示「查看」或「录入」 */
 const editorMainTab = useState<'view' | 'entry'>('editorMainTab', () => 'view')
-/** 与全站 `useState('member')` 共用；勿用本地 ref，否则子组件读不到同步结果 */
 const memberShared = useState<MemberSnapshot>("member", () => null)
 
 const initLocalUser = async () => {
@@ -76,7 +74,6 @@ const applyMemberFromStorage = () => {
 }
 const refreshState = async () => {
     await synchronizationUserState()
-    // `useState` 初始化函数只在首次创建时执行；子组件已先 `useState('member')` 时必须写 `.value`
     applyMemberFromStorage()
 }
 eventBus.on('member', (obj) => {
